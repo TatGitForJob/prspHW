@@ -1,0 +1,42 @@
+version: '3.8'
+
+networks:
+  my-network:
+    driver: bridge
+
+services:
+  postgres:
+    build: ./postgres
+    networks:
+      - my-network
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=appdb
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    networks:
+      - my-network
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: appdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+
+  frontend:
+    build: ./frontend
+    networks:
+      - my-network
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+      - postgres
